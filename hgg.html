@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Khaled Smart Scheduler 4.0</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+:root {
+  --bg-dark: #0f172a;
+  --bg-card: rgba(30, 41, 59, 0.85);
+  --accent: #38bdf8;
+  --accent2: #0ea5e9;
+  --text: #f8fafc;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --warning: #facc15;
+  --border: #334155;
+  --shadow: 0 0 25px rgba(56,189,248,0.15);
+}
+
+body {
+  font-family: "Tajawal", sans-serif;
+  background: radial-gradient(circle at 25% 20%, #0f172a, #020617);
+  color: var(--text);
+  text-align: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding: 40px;
+}
+
+h1 {
+  color: var(--accent);
+  font-size: 32px;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+h2 {
+  color: var(--warning);
+  margin-top: 30px;
+  font-size: 22px;
+}
+
+p {
+  color: #cbd5e1;
+}
+
+textarea {
+  width: 80%;
+  height: 220px;
+  border-radius: 16px;
+  padding: 14px;
+  font-size: 15px;
+  border: 2px solid var(--accent2);
+  background: var(--bg-card);
+  color: var(--text);
+  direction: ltr;
+  resize: none;
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow);
+  transition: 0.4s;
+}
+textarea:focus {
+  outline: none;
+  border-color: var(--success);
+  box-shadow: 0 0 20px rgba(34,197,94,0.3);
+}
+
+button {
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 0 20px rgba(14,165,233,0.2);
+}
+button:hover {
+  transform: scale(1.07);
+  box-shadow: 0 0 25px rgba(14,165,233,0.4);
+}
+
+#loader {
+  display: none;
+  margin: 30px auto;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 6px solid transparent;
+  border-top-color: var(--accent);
+  border-right-color: var(--accent2);
+  animation: spin 1.2s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.progress-bar {
+  width: 80%;
+  margin: 20px auto;
+  height: 10px;
+  background: #1e293b;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent2), var(--success));
+  transition: width 0.3s;
+}
+
+.selector-box {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 25px;
+  margin-top: 30px;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: var(--shadow);
+  text-align: right;
+}
+
+select {
+  width: 95%;
+  padding: 10px;
+  margin: 5px 0 15px 0;
+  border-radius: 10px;
+  background: #1e293b;
+  border: 1px solid var(--accent);
+  color: var(--text);
+  font-size: 15px;
+}
+option { background: #1e293b; }
+
+.alert {
+  padding: 10px 15px;
+  border-radius: 12px;
+  width: fit-content;
+  margin: 15px auto;
+  animation: fade 0.3s ease;
+}
+@keyframes fade { from{opacity:0;transform:scale(0.95);} to{opacity:1;transform:scale(1);} }
+
+.alert.success { background: var(--success); color: white; }
+.alert.error { background: var(--danger); color: white; }
+
+.grid {
+  display: grid;
+  grid-template-columns: 100px repeat(5, 1fr);
+  border: 2px solid var(--accent2);
+  border-radius: 10px;
+  margin-top: 25px;
+  overflow: hidden;
+  background: var(--bg-card);
+  box-shadow: var(--shadow);
+}
+.header, .time {
+  background: #1e293b;
+  border-bottom: 1px solid var(--border);
+  padding: 8px;
+  font-weight: bold;
+}
+.cell {
+  border: 1px solid var(--border);
+  height: 80px;
+  position: relative;
+  transition: 0.2s;
+}
+.cell:hover { background: rgba(56,189,248,0.1); }
+.block {
+  position: absolute;
+  inset: 5px;
+  border-radius: 12px;
+  color: white;
+  padding: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1.4;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 25px;
+  background: var(--bg-card);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 10px;
+  text-align: center;
+}
+th { background: var(--accent2); }
+footer {
+  color: #94a3b8;
+  margin-top: 40px;
+  font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<h1>🎓 نظام خالد الذكي للجدول الجامعي 4.0</h1>
+<p>ألصق كود “عرض المصدر” من صفحة المقررات الجامعية 👇</p>
+
+<textarea id="htmlInput" placeholder="ألصق الكود الكامل هنا..."></textarea><br>
+<button id="analyzeBtn" onclick="startAnalysis()">تحليل الكود</button>
+<div id="loader"></div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<div id="alerts"></div>
+<div id="selectors"></div>
+<div id="output"></div>
+
+<footer>© 2025 - Developed with ❤️ by <b>خالد سلمان</b></footer>
+
+<script>
+let courses = [];
+let selectedCourses = [];
+
+function showAlert(msg, type="error") {
+  const d = document.createElement("div");
+  d.className = "alert " + type;
+  d.textContent = msg;
+  document.getElementById("alerts").appendChild(d);
+  setTimeout(() => d.remove(), 4000);
+}
+
+function startAnalysis() {
+  const html = document.getElementById("htmlInput").value.trim();
+  if (!html) return showAlert("الرجاء لصق كود الصفحة أولًا.", "error");
+
+  document.getElementById("loader").style.display = "block";
+  let progress = 0;
+  const bar = document.getElementById("progress");
+  const interval = setInterval(() => {
+    progress += 10;
+    bar.style.width = progress + "%";
+    if (progress >= 100) {
+      clearInterval(interval);
+      setTimeout(() => analyze(html), 500);
+    }
+  }, 150);
+}
+
+function to24h(time) {
+  time = time.trim().replace("ص","AM").replace("م","PM");
+  const d = new Date("2000/01/01 " + time);
+  let h = d.getHours().toString().padStart(2,"0");
+  let m = d.getMinutes().toString().padStart(2,"0");
+  return `${h}:${m}`;
+}
+
+function analyze(html) {
+  document.getElementById("loader").style.display = "none";
+  document.getElementById("alerts").innerHTML = "";
+  showAlert("✅ تم تحليل الكود بنجاح!", "success");
+
+  const rows = [...html.matchAll(/<tr class="ROW\d">([\s\S]*?)<\/tr>/g)];
+  courses = [];
+
+  for (const row of rows) {
+    const content = row[1];
+    const tds = [...content.matchAll(/<td[^>]*>(.*?)<\/td>/g)].map(t => t[1].replace(/<[^>]+>/g,'').trim());
+    if (tds.length >= 6) {
+      const [code, name, section, type, hours, status] = tds;
+      const instructor = (content.match(/:instructor"[^>]+value="([^"]+)"/) || [])[1] || "غير محدد";
+      const sectionData = (content.match(/:section"[^>]+value="([^"]+)"/) || [])[1] || "";
+      const sessions = [];
+      if (sectionData) {
+        sectionData.split("@n").forEach(s => {
+          const [day, timeRoom] = s.split("@t");
+          if (timeRoom) {
+            const [time, room] = timeRoom.split("@r");
+            sessions.push({ day: day.trim(), time: time.trim(), room: room.trim() });
+          }
+        });
+      }
+      courses.push({ code, name, section, instructor, sessions });
+    }
+  }
+
+  if (!courses.length) return showAlert("لم يتم العثور على مواد في الكود.", "error");
+  buildSelectors();
+}
+
+function buildSelectors() {
+  const container = document.getElementById("selectors");
+  container.innerHTML = "";
+  const box = document.createElement("div");
+  box.className = "selector-box";
+
+  const names = [...new Set(courses.map(c => c.name))];
+  let html = `<h2>📚 اختر المواد التي ترغب بإضافتها:</h2>`;
+  names.forEach(n => {
+    html += `<div>
+      <label><input type="checkbox" onchange="updateInstructors(this, '${n}')"> ${n}</label>
+      <div id="inst_${n.replace(/\s/g,'_')}"></div>
+    </div>`;
+  });
+  html += `<br><button onclick="generateSchedule()">عرض الجدول</button>`;
+  box.innerHTML = html;
+  container.appendChild(box);
+}
+
+function updateInstructors(checkbox, name) {
+  const div = document.getElementById("inst_" + name.replace(/\s/g,'_'));
+  div.innerHTML = "";
+  if (!checkbox.checked) return;
+  const inst = [...new Set(courses.filter(c => c.name === name).map(c => c.instructor))];
+  inst.forEach(i => {
+    div.innerHTML += `<label style="margin-right:15px;">
+      <input type="radio" name="inst_${name}" value="${i}"> ${i}
+    </label>`;
+  });
+}
+
+function generateSchedule() {
+  selectedCourses = [];
+  const names = [...new Set(courses.map(c => c.name))];
+  names.forEach(n => {
+    const chk = document.querySelector(`input[type=checkbox][onchange*="${n}"]`);
+    if (chk && chk.checked) {
+      const selectedInstructor = document.querySelector(`input[name="inst_${n}"]:checked`);
+      if (selectedInstructor) {
+        const data = courses.find(c => c.name === n && c.instructor === selectedInstructor.value);
+        if (data) selectedCourses.push(data);
+      }
+    }
+  });
+
+  if (!selectedCourses.length) return showAlert("اختر مادة واحدة على الأقل مع دكتور.", "error");
+
+  buildTable();
+}
+
+function buildTable() {
+  const out = document.getElementById("output");
+  out.innerHTML = "";
+
+  let html = `<h2>📄 الجدول النصي</h2><table>
+  <tr><th>اسم المقرر</th><th>المحاضر</th><th>اليوم</th><th>الوقت</th><th>القاعة</th></tr>`;
+  selectedCourses.forEach(c => {
+    c.sessions.forEach(s => {
+      html += `<tr><td>${c.name}</td><td>${c.instructor}</td><td>${s.day}</td><td>${s.time}</td><td>${s.room}</td></tr>`;
+    });
+  });
+  html += `</table>`;
+
+  const days = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس"];
+  const hours = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00"];
+  let grid = `<h2>🗓️ الجدول الرسومي</h2><div class='grid'><div class='header'></div>`;
+  days.forEach(d => grid += `<div class='header'>${d}</div>`);
+  for (const h of hours) {
+    grid += `<div class='time'>${h}</div>`;
+    days.forEach(d => grid += `<div class='cell' id='${d}_${h}'></div>`);
+  }
+  grid += `</div>`;
+  out.innerHTML = html + grid;
+
+  const colors = ["#22c55e","#0ea5e9","#facc15","#f43f5e","#a855f7","#14b8a6","#fb923c"];
+  selectedCourses.forEach((c, i) => {
+    const color = colors[i % colors.length];
+    c.sessions.forEach(s => {
+      const match = s.time.match(/(\d+:\d+)\s*([صم])\s*-\s*(\d+:\d+)\s*([صم])/);
+      if (match) {
+        const start = to24h(match[1]+match[2]);
+        const hour = start.split(":")[0]+":00";
+        const cell = document.getElementById(`${s.day}_${hour}`);
+        if (cell) {
+          const block = document.createElement("div");
+          block.className = "block";
+          block.style.background = color;
+          block.innerHTML = `${c.name}<br>${s.time}<br>${s.room}`;
+          cell.appendChild(block);
+        }
+      }
+    });
+  });
+}
+</script>
+</body>
+</html>
